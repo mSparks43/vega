@@ -1,4 +1,3 @@
-import {tickCount} from './ticks';
 import {Transform} from 'vega-dataflow';
 import {
   error, inherits, isArray, isFunction, isString, peek, stringValue,
@@ -6,20 +5,34 @@ import {
 } from 'vega-util';
 
 import {
-  Ordinal, Band, Point, Sequential, Diverging,
-  Linear, Log, Pow, Sqrt, Symlog, Time, UTC,
-  Quantile, Quantize, Threshold, BinOrdinal,
-  isContinuous,
-  isInterpolating,
-  isLogarithmic,
+  Band,
+  BinOrdinal,
+  Diverging,
+  Linear,
+  Log,
+  Ordinal,
+  Point,
+  Pow,
+  Quantile,
+  Quantize,
+  Sequential,
+  Sqrt,
+  Symlog,
+  Threshold,
+  Time,
+  UTC,
   bandSpace,
-  interpolateColors,
-  interpolateRange,
   interpolate as getInterpolate,
   scale as getScale,
   scheme as getScheme,
+  interpolateColors,
+  interpolateRange,
+  isContinuous,
+  isInterpolating,
+  isLogarithmic,
+  quantizeInterpolator,
   scaleImplicit,
-  quantizeInterpolator
+  tickCount
 } from 'vega-scale';
 
 import {range as sequence} from 'd3-array';
@@ -29,7 +42,7 @@ import {
   interpolateRound
 } from 'd3-interpolate';
 
-var DEFAULT_COUNT = 5;
+const DEFAULT_COUNT = 5;
 
 function includeZero(scale) {
   const type = scale.type;
@@ -42,7 +55,7 @@ function includePad(type) {
   return isContinuous(type) && type !== Sequential;
 }
 
-var SKIP = toSet([
+const SKIP = toSet([
   'set', 'modified', 'clear', 'type', 'scheme', 'schemeExtent', 'schemeCount',
   'domain', 'domainMin', 'domainMid', 'domainMax',
   'domainRaw', 'domainImplicit', 'nice', 'zero', 'bins',
@@ -59,32 +72,32 @@ export default function Scale(params) {
   this.modified(true); // always treat as modified
 }
 
-var prototype = inherits(Scale, Transform);
+inherits(Scale, Transform, {
+  transform(_, pulse) {
+    var df = pulse.dataflow,
+        scale = this.value,
+        key = scaleKey(_);
 
-prototype.transform = function(_, pulse) {
-  var df = pulse.dataflow,
-      scale = this.value,
-      key = scaleKey(_);
+    if (!scale || key !== scale.type) {
+      this.value = scale = getScale(key)();
+    }
 
-  if (!scale || key !== scale.type) {
-    this.value = scale = getScale(key)();
+    for (key in _) if (!SKIP[key]) {
+      // padding is a scale property for band/point but not others
+      if (key === 'padding' && includePad(scale.type)) continue;
+      // invoke scale property setter, raise warning if not found
+      isFunction(scale[key])
+        ? scale[key](_[key])
+        : df.warn('Unsupported scale property: ' + key);
+    }
+
+    configureRange(scale, _,
+      configureBins(scale, _, configureDomain(scale, _, df))
+    );
+
+    return pulse.fork(pulse.NO_SOURCE | pulse.NO_FIELDS);
   }
-
-  for (key in _) if (!SKIP[key]) {
-    // padding is a scale property for band/point but not others
-    if (key === 'padding' && includePad(scale.type)) continue;
-    // invoke scale property setter, raise warning if not found
-    isFunction(scale[key])
-      ? scale[key](_[key])
-      : df.warn('Unsupported scale property: ' + key);
-  }
-
-  configureRange(scale, _,
-    configureBins(scale, _, configureDomain(scale, _, df))
-  );
-
-  return pulse.fork(pulse.NO_SOURCE | pulse.NO_FIELDS);
-};
+});
 
 function scaleKey(_) {
   var t = _.type, d = '', n;
@@ -140,10 +153,9 @@ function configureDomain(scale, _, df) {
 
     if (_.domainMid != null) {
       mid = _.domainMid;
-      if (mid < domain[0] || mid > domain[n]) {
-        df.warn('Scale domainMid exceeds domain min or max.', mid);
-      }
-      domain.splice(n, 0, mid);
+      const i = mid > domain[n] ? n + 1 : mid < domain[0] ? 0 : n;
+      if (i !== n) df.warn('Scale domainMid exceeds domain min or max.', mid);
+      domain.splice(i, 0, mid);
     }
   }
 

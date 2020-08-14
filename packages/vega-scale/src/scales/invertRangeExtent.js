@@ -1,6 +1,6 @@
 export default function(scale) {
   return function(_) {
-    var range = scale.range(),
+    let range = scale.range(),
         lo = _[0],
         hi = _[1],
         min = -1, max, t, i, n;
@@ -27,5 +27,5 @@ export default function(scale) {
       lo[0] === undefined ? lo[1] : lo[0],
       hi[1] === undefined ? hi[0] : hi[1]
     ];
-  }
+  };
 }

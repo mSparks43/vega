@@ -1,17 +1,17 @@
 import {
-  Index, Label, Offset, Size, Value, zero, one,
-  Skip, GuideLabelStyle, LegendScales
+  GuideLabelStyle, Index, Label, LegendScales, Offset, Size, Skip,
+  Value, one, zero
 } from './constants';
 import guideGroup from './guide-group';
 import guideMark from './guide-mark';
 import {lookup} from './guide-util';
+import {addEncoders, encoder, extendEncode} from '../encode/util';
 import {SymbolMark, TextMark} from '../marks/marktypes';
-import {ScopeRole, LegendSymbolRole, LegendLabelRole} from '../marks/roles';
-import {addEncoders, encoder, extendEncode} from '../encode/encode-util';
+import {LegendLabelRole, LegendSymbolRole, ScopeRole} from '../marks/roles';
 
 // userEncode is top-level, includes entries, symbols, labels
 export default function(spec, config, userEncode, dataRef, columns) {
-  var _ = lookup(spec, config),
+  let _ = lookup(spec, config),
       entries = userEncode.entries,
       interactive = !!(entries && entries.interactive),
       name = entries ? entries.name : undefined,
@@ -19,7 +19,7 @@ export default function(spec, config, userEncode, dataRef, columns) {
       symbolOffset = _('symbolOffset'),
       valueRef = {data: 'value'},
       encode = {},
-      xSignal = `${columns} ? datum.${Offset} : datum.${Size}`,
+      xSignal = `(${columns}) ? datum.${Offset} : datum.${Size}`,
       yEncode = height ? encoder(height) : {field: Size},
       index = `datum.${Index}`,
       ncols = `max(1, ${columns})`,
@@ -44,7 +44,7 @@ export default function(spec, config, userEncode, dataRef, columns) {
     }
   };
 
-  var baseFill = null,
+  let baseFill = null,
       baseStroke = null;
   if (!spec.fill) {
     baseFill = config.symbolBaseFillColor;
@@ -69,11 +69,14 @@ export default function(spec, config, userEncode, dataRef, columns) {
     }
   });
 
-  symbols = guideMark(
-    SymbolMark, LegendSymbolRole, null,
-    Value, valueRef, encode, userEncode.symbols
-  );
-  if (height) symbols.clip = true;
+  symbols = guideMark({
+    type: SymbolMark,
+    role: LegendSymbolRole,
+    key:  Value,
+    from: valueRef,
+    clip: height ? true : undefined,
+    encode
+  }, userEncode.symbols);
 
   // -- LEGEND LABELS --
   labelOffset = encoder(symbolOffset);
@@ -108,10 +111,14 @@ export default function(spec, config, userEncode, dataRef, columns) {
     limit:       _('labelLimit')
   });
 
-  labels = guideMark(
-    TextMark, LegendLabelRole, GuideLabelStyle,
-    Value, valueRef, encode, userEncode.labels
-  );
+  labels = guideMark({
+    type:  TextMark,
+    role:  LegendLabelRole,
+    style: GuideLabelStyle,
+    key:   Value,
+    from:  valueRef,
+    encode
+  }, userEncode.labels);
 
   // -- LEGEND ENTRY GROUPS --
   encode = {
@@ -141,17 +148,20 @@ export default function(spec, config, userEncode, dataRef, columns) {
     sort = {field: index};
   }
   // handle zero column case (implies infinite columns)
-  update.column.signal = `${columns}?${update.column.signal}:${index}`;
+  update.column.signal = `(${columns})?${update.column.signal}:${index}`;
 
   // facet legend entries into sub-groups
   dataRef = {facet: {data: dataRef, name: 'value', groupby: Index}};
 
-  spec = guideGroup(
-    ScopeRole, null, name, dataRef, interactive,
-    extendEncode(encode, entries, Skip), [symbols, labels]
-  );
-  spec.sort = sort;
-  return spec;
+  return guideGroup({
+    role:   ScopeRole,
+    from:   dataRef,
+    encode: extendEncode(encode, entries, Skip),
+    marks:  [symbols, labels],
+    name,
+    interactive,
+    sort
+  });
 }
 
 export function legendSymbolLayout(spec, config) {

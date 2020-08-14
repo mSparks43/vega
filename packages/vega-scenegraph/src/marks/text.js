@@ -3,10 +3,11 @@ import {DegToRad, HalfPi} from '../util/constants';
 import {font, lineHeight, offset, textLines, textMetrics, textValue} from '../util/text';
 import {intersectBoxLine} from '../util/intersect';
 import {visit} from '../util/visit';
+import blend from '../util/canvas/blend';
 import fill from '../util/canvas/fill';
 import {pick} from '../util/canvas/pick';
 import stroke from '../util/canvas/stroke';
-import {translate, rotate} from '../util/svg/transform';
+import {rotate, translate} from '../util/svg/transform';
 import {isArray} from 'vega-util';
 
 var textAlign = {
@@ -118,6 +119,7 @@ function draw(context, scene, bounds) {
     y += (item.dy || 0) + offset(item);
 
     tl = textLines(item);
+    blend(context, item);
     if (isArray(tl)) {
       lh = lineHeight(item);
       for (i=0; i<tl.length; ++i) {

@@ -24,7 +24,7 @@ function loadScene(file) {
 }
 
 function render(scene, w, h) {
-  vega.resetSVGClipId();
+  vega.resetSVGDefIds();
   return new Renderer()
     .initialize(null, w, h)
     .render(scene)
@@ -32,7 +32,7 @@ function render(scene, w, h) {
 }
 
 function renderAsync(scene, w, h, callback) {
-  vega.resetSVGClipId();
+  vega.resetSVGDefIds();
   new Renderer(loader({mode: 'http', baseURL: './test/resources/'}))
     .initialize(null, w, h)
     .renderAsync(scene)
@@ -41,7 +41,7 @@ function renderAsync(scene, w, h, callback) {
 
 tape('SVGStringRenderer should build empty group for item-less area mark', function(t) {
   var r = new Renderer();
-  var str = r.mark({marktype: 'area', items:[]});
+  var str = r.mark(vega.markup(), {marktype: 'area', items:[]}) + '';
   generate('svg/marks-itemless-area.svg', str);
   var file = load('svg/marks-itemless-area.svg');
   t.equal(str, file);
@@ -50,7 +50,7 @@ tape('SVGStringRenderer should build empty group for item-less area mark', funct
 
 tape('SVGStringRenderer should build empty group for item-less line mark', function(t) {
   var r = new Renderer();
-  var str = r.mark({marktype: 'line', items:[]});
+  var str = r.mark(vega.markup(), {marktype: 'line', items:[]}) + '';
   generate('svg/marks-itemless-line.svg', str);
   var file = load('svg/marks-itemless-line.svg');
   t.equal(str, file);
@@ -62,6 +62,15 @@ tape('SVGStringRenderer should render scenegraph to SVG string', function(t) {
   var str = render(scene, 400, 200);
   generate('svg/scenegraph-rect.svg', str);
   var file = load('svg/scenegraph-rect.svg');
+  t.equal(str, file);
+  t.end();
+});
+
+tape('SVGStringRenderer should support descriptions', function(t) {
+  var scene = loadScene('scenegraph-description.json');
+  var str = render(scene, 400, 200);
+  generate('svg/scenegraph-description.svg', str);
+  var file = load('svg/scenegraph-description.svg');
   t.equal(str, file);
   t.end();
 });
@@ -94,7 +103,7 @@ tape('SVGStringRenderer should support axes, legends and sub-groups', function(t
 });
 
 tape('SVGStringRenderer should support full redraw', function(t) {
-  vega.resetSVGClipId();
+  vega.resetSVGDefIds();
 
   var scene = loadScene('scenegraph-rect.json');
   var r = new Renderer()
@@ -126,7 +135,7 @@ tape('SVGStringRenderer should support full redraw', function(t) {
 });
 
 tape('SVGStringRenderer should support enter-item redraw', function(t) {
-  vega.resetSVGClipId();
+  vega.resetSVGDefIds();
 
   var scene = loadScene('scenegraph-rect.json');
   var r = new Renderer()
@@ -155,7 +164,7 @@ tape('SVGStringRenderer should support enter-item redraw', function(t) {
 });
 
 tape('SVGStringRenderer should support exit-item redraw', function(t) {
-  vega.resetSVGClipId();
+  vega.resetSVGDefIds();
 
   var scene = loadScene('scenegraph-rect.json');
   var r = new Renderer()
@@ -176,7 +185,7 @@ tape('SVGStringRenderer should support exit-item redraw', function(t) {
 });
 
 tape('SVGStringRenderer should support single-item redraw', function(t) {
-  vega.resetSVGClipId();
+  vega.resetSVGDefIds();
 
   var scene = loadScene('scenegraph-rect.json');
   var r = new Renderer()
@@ -198,7 +207,7 @@ tape('SVGStringRenderer should support single-item redraw', function(t) {
 });
 
 tape('SVGStringRenderer should support multi-item redraw', function(t) {
-  vega.resetSVGClipId();
+  vega.resetSVGDefIds();
 
   var scene = vega.sceneFromJSON(vega.sceneToJSON(marks['line-1']));
   var r = new Renderer()
@@ -220,7 +229,7 @@ tape('SVGStringRenderer should support multi-item redraw', function(t) {
 });
 
 tape('SVGStringRenderer should support enter-group redraw', function(t) {
-  vega.resetSVGClipId();
+  vega.resetSVGDefIds();
 
   var scene = loadScene('scenegraph-barley.json');
   var r = new Renderer()

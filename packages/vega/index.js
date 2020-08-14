@@ -66,9 +66,15 @@ export {
 } from 'vega-view';
 
 export {
-  expressionFunction,
-  formatLocale,
-  timeFormatLocale
+  numberFormatDefaultLocale as formatLocale,
+  timeFormatDefaultLocale as timeFormatLocale,
+  locale,
+  defaultLocale,
+  resetDefaultLocale
+} from 'vega-format';
+
+export {
+  expressionFunction
 } from 'vega-functions';
 
 export {
@@ -76,6 +82,5 @@ export {
 } from 'vega-parser';
 
 export {
-  parse as runtime,
   context as runtimeContext
 } from 'vega-runtime';

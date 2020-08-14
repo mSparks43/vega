@@ -55,6 +55,7 @@ export type Transforms =
   | JoinAggregateTransform
   | KDETransform
   | KDE2DTransform
+  | LabelTransform
   | LinkPathTransform
   | LoessTransform
   | LookupTransform
@@ -101,6 +102,7 @@ export type AggregateOp =
   | 'median'
   | 'min'
   | 'missing'
+  | 'product'
   | 'q1'
   | 'q3'
   | 'ci0'
@@ -493,6 +495,20 @@ export interface LoessTransform {
   as?: Vector2<string | SignalRef> | SignalRef;
 }
 
+export interface LabelTransform {
+  type: 'label';
+  size: Vector2<number | SignalRef> | SignalRef;
+  sort?: Compare;
+  offset?: number[] | number | SignalRef;
+  anchor?: string[] | string | SignalRef;
+  padding?: number | SignalRef;
+  markIndex?: number;
+  lineAnchor?: 'begin' | 'end' | SignalRef;
+  avoidBaseMark?: boolean | SignalRef;
+  avoidMarks?: string[];
+  as?: Vector7<string | SignalRef> | SignalRef;
+}
+
 export interface LookupTransform {
   type: 'lookup';
   from: DataName;
@@ -551,7 +567,7 @@ export interface PivotTransform {
 export interface ProjectTransform {
   type: 'project';
   fields?: FieldRef[] | SignalRef;
-  as?: string | null | SignalRef;
+  as?: (string | SignalRef | null)[] | SignalRef;
 }
 
 export interface QuantileTransform {
@@ -629,6 +645,7 @@ export type TimeUnit =
   | 'week'
   | 'day'
   | 'date'
+  | 'dayofyear'
   | 'hours'
   | 'minutes'
   | 'seconds'

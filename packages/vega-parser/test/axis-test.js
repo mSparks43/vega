@@ -3,24 +3,24 @@ var tape = require('tape'),
 
 tape('Parser parses Vega specs with axes', function(t) {
   var spec = {
-    "scales": [
+    'scales': [
       {
-        "name": "xscale",
-        "domain": [0, 1],
-        "range": [0, 500]
+        'name': 'xscale',
+        'domain': [0, 1],
+        'range': [0, 500]
       }
     ],
-    "axes": [
+    'axes': [
       {
-        "scale": "xscale",
-        "orient": "bottom"
+        'scale': 'xscale',
+        'orient': 'bottom'
       }
     ]
   };
 
   var dfs = parse(spec);
 
-  t.equal(dfs.operators.length, 46);
+  t.equal(dfs.operators.length, 47);
 
   t.end();
 });

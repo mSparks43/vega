@@ -1,9 +1,9 @@
 import hasOwnProperty from './hasOwnProperty';
 
-var NULL = {};
+const NULL = {};
 
 export default function(input) {
-  var obj = {},
+  let obj = {},
       map,
       test;
 
@@ -16,10 +16,10 @@ export default function(input) {
     empty: 0,
     object: obj,
     has: has,
-    get: function(key) {
+    get(key) {
       return has(key) ? obj[key] : undefined;
     },
-    set: function(key, value) {
+    set(key, value) {
       if (!has(key)) {
         ++map.size;
         if (obj[key] === NULL) --map.empty;
@@ -27,7 +27,7 @@ export default function(input) {
       obj[key] = value;
       return this;
     },
-    delete: function(key) {
+    delete(key) {
       if (has(key)) {
         --map.size;
         ++map.empty;
@@ -35,11 +35,11 @@ export default function(input) {
       }
       return this;
     },
-    clear: function() {
+    clear() {
       map.size = map.empty = 0;
       map.object = obj = {};
     },
-    test: function(_) {
+    test(_) {
       if (arguments.length) {
         test = _;
         return map;
@@ -47,8 +47,8 @@ export default function(input) {
         return test;
       }
     },
-    clean: function() {
-      var next = {},
+    clean() {
+      let next = {},
           size = 0,
           key, value;
       for (key in obj) {

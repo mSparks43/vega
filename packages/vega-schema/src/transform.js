@@ -1,6 +1,6 @@
 import {
-  array, enums, object, anyOf, oneOf, def, ref,
-  booleanType, numberType, nullType, stringType, signalRef
+  anyOf, array, booleanType, def, enums, nullType, numberType,
+  object, oneOf, ref, signalRef, stringType
 } from './util';
 
 // types defined elsewhere
@@ -23,7 +23,7 @@ function transformSchema(name, def) {
         };
         props[param.name] = param.array ? array(schema) : schema;
       } else if (param.params) {
-        parameters(param.params)
+        parameters(param.params);
       } else {
         const key = param.required ? req(param.name) : param.name;
         props[key] = parameterSchema(param);
@@ -64,6 +64,9 @@ function parameterSchema(param) {
     case 'string':
       p = anyOf(stringType, signalRef);
       break;
+    // dates should fall through to number
+    // values should be timestamps or date-valued signals
+    case 'date':
     case 'number':
       p = anyOf(numberType, signalRef);
       break;

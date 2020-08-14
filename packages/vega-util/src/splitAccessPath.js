@@ -1,7 +1,7 @@
 import error from './error';
 
 export default function(p) {
-  var path = [],
+  let path = [],
       q = null,
       b = 0,
       n = p.length,
@@ -20,7 +20,8 @@ export default function(p) {
     c = p[j];
     if (c === '\\') {
       s += p.substring(i, j);
-      i = ++j;
+      s += p.substring(++j, ++j);
+      i = j;
     } else if (c === q) {
       push();
       q = null;

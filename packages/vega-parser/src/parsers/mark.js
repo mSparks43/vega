@@ -1,3 +1,4 @@
+import parseEncode from './encode';
 import clip from './marks/clip';
 import definition from './marks/definition';
 import interactive from './marks/interactive';
@@ -7,17 +8,15 @@ import parseSubflow from './marks/subflow';
 import getRole from './marks/role';
 import {GroupMark} from './marks/marktypes';
 import {FrameRole, MarkRole, ScopeRole} from './marks/roles';
-import {encoders} from './encode/encode-util';
 import parseTransform from './transform';
 import parseTrigger from './trigger';
-import parseSpec from './spec';
 import DataScope from '../DataScope';
 import {fieldRef, isSignal, ref} from '../util';
 import {error} from 'vega-util';
-import {Bound, Collect, DataJoin, Mark, Encode, Overlap, Render, Sieve, SortItems, ViewLayout} from '../transforms';
+import {Bound, Collect, DataJoin, Encode, Mark, Overlap, Render, Sieve, SortItems, ViewLayout} from '../transforms';
 
 export default function(spec, scope) {
-  var role = getRole(spec),
+  let role = getRole(spec),
       group = spec.type === GroupMark,
       facet = spec.from && spec.from.facet,
       layout = spec.layout || role === ScopeRole || role === FrameRole,
@@ -54,7 +53,7 @@ export default function(spec, scope) {
   markRef = ref(op);
 
   // add visual encoders
-  op = enc = scope.add(Encode(encoders(
+  op = enc = scope.add(Encode(parseEncode(
     spec.encode, spec.type, role, spec.style, scope,
     {mod: false, pulse: markRef}
   )));
@@ -64,7 +63,7 @@ export default function(spec, scope) {
 
   // add post-encoding transforms, if defined
   if (spec.transform) {
-    spec.transform.forEach(function(_) {
+    spec.transform.forEach(_ => {
       const tx = parseTransform(_, scope),
             md = tx.metadata;
       if (md.generates || md.changes) {
@@ -109,7 +108,7 @@ export default function(spec, scope) {
     scope.pushState(encodeRef, layoutRef || boundRef, joinRef);
     facet ? parseFacet(spec, scope, input)          // explicit facet
         : nested ? parseSubflow(spec, scope, input) // standard mark group
-        : parseSpec(spec, scope); // guide group, we can avoid nested scopes
+        : scope.parse(spec); // guide group, we can avoid nested scopes
     scope.popState();
 
     if (nested) { if (layout) ops.push(layout); ops.push(bound); }
@@ -129,7 +128,7 @@ export default function(spec, scope) {
   if (spec.name != null) {
     name = spec.name;
     scope.addData(name, new DataScope(scope, store, render, sieve));
-    if (spec.on) spec.on.forEach(function(on) {
+    if (spec.on) spec.on.forEach(on => {
       if (on.insert || on.remove || on.toggle) {
         error('Marks only support modify triggers.');
       }
@@ -139,11 +138,11 @@ export default function(spec, scope) {
 }
 
 function parseOverlap(overlap, source, scope) {
-  var method = overlap.method,
-      bound = overlap.bound,
-      sep = overlap.separation, tol;
+  const method = overlap.method,
+        bound = overlap.bound,
+        sep = overlap.separation;
 
-  var params = {
+  const params = {
     separation: isSignal(sep) ? scope.signalRef(sep.signal) : sep,
     method: isSignal(method) ? scope.signalRef(method.signal) : method,
     pulse:  source
@@ -154,7 +153,7 @@ function parseOverlap(overlap, source, scope) {
   }
 
   if (bound) {
-    tol = bound.tolerance;
+    const tol = bound.tolerance;
     params.boundTolerance = isSignal(tol) ? scope.signalRef(tol.signal) : +tol;
     params.boundScale = scope.scaleRef(bound.scale);
     params.boundOrient = bound.orient;

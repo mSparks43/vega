@@ -3,7 +3,7 @@ import boundMark from '../bound/boundMark';
 var keys = [
   'marktype', 'name', 'role', 'interactive', 'clip', 'items', 'zindex',
   'x', 'y', 'width', 'height', 'align', 'baseline',             // layout
-  'fill', 'fillOpacity', 'opacity',                             // fill
+  'fill', 'fillOpacity', 'opacity', 'blend',                    // fill
   'stroke', 'strokeOpacity', 'strokeWidth', 'strokeCap',        // stroke
   'strokeDash', 'strokeDashOffset',                             // stroke dash
   'strokeForeground', 'strokeOffset',                           // group
@@ -18,7 +18,8 @@ var keys = [
   'size', 'shape',                                              // symbol
   'text', 'angle', 'theta', 'radius', 'dir', 'dx', 'dy',        // text
   'ellipsis', 'limit', 'lineBreak', 'lineHeight',
-  'font', 'fontSize', 'fontWeight', 'fontStyle', 'fontVariant'  // font
+  'font', 'fontSize', 'fontWeight', 'fontStyle', 'fontVariant', // font
+  'description', 'aria', 'ariaRole', 'ariaRoleDescription'      // aria
 ];
 
 export function sceneToJSON(scene, indent) {

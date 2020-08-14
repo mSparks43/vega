@@ -45,7 +45,7 @@ export {
 
 export {default as array} from './src/array';
 export {default as clampRange} from './src/clampRange';
-export {default as compare} from './src/compare';
+export {default as compare, ascending} from './src/compare';
 export {default as constant} from './src/constant';
 export {default as debounce} from './src/debounce';
 export {default as error} from './src/error';
@@ -68,6 +68,7 @@ export {default as isRegExp} from './src/isRegExp';
 export {default as isString} from './src/isString';
 export {default as key} from './src/key';
 export {default as lerp} from './src/lerp';
+export {default as lruCache} from './src/lruCache';
 export {default as merge} from './src/merge';
 export {default as pad} from './src/pad';
 export {default as peek} from './src/peek';

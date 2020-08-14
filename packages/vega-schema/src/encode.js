@@ -1,8 +1,14 @@
 import {
-  allOf, anyOf, oneOf, ref, array, def, object, pattern, required,
-  type, booleanType, nullType, numberType, stringType, textType,
-  signalRef, numberValue, enums
+  allOf, anyOf, array, booleanType, def, enums, nullType, numberType, numberValue,
+  object, oneOf, pattern, ref, required, signalRef,
+  stringType, textType, type
 } from './util';
+
+export const blendEnum = [
+  null, 'multiply', 'screen', 'overlay', 'darken', 'lighten',
+  'color-dodge', 'color-burn', 'hard-light', 'soft-light', 'difference',
+  'exclusion', 'hue', 'saturation', 'color', 'luminosity'
+];
 
 export const fontWeightEnum = [
   null, 'normal', 'bold', 'lighter', 'bolder',
@@ -192,9 +198,16 @@ const encodeEntry = object({
   strokeDashOffset: numberValueRef,
   strokeJoin: ref('strokeJoinValue'),
   strokeMiterLimit: numberValueRef,
+  blend: ref('blendValue'),
   cursor: stringValueRef,
   tooltip: anyValueRef,
   zindex: numberValueRef,
+  description: stringValueRef,
+  aria: booleanValueRef,
+
+  // experimental aria properties, may change
+  ariaRole: stringValueRef,
+  ariaRoleDescription: stringValueRef,
 
   // Group-mark properties
   clip: booleanValueRef,
@@ -268,6 +281,7 @@ export default {
     stringModifiers,
     numberModifiers,
     anyValue: valueSchema(undefined),
+    blendValue: valueSchema(blendEnum),
     numberValue: valueSchema('number'),
     stringValue: valueSchema('string'),
     textValue: valueSchema(textType),
